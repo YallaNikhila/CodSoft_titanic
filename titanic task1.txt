@@ -1,0 +1,83 @@
+import math
+
+# Dataset with features and labels
+data = [
+    {'age': 25, 'gender': 0, 'socio_economic_status': 2, 'survived': 1},
+    {'age': 30, 'gender': 1, 'socio_economic_status': 1, 'survived': 1},
+    {'age': 22, 'gender': 0, 'socio_economic_status': 0, 'survived': 0},
+    {'age': 40, 'gender': 1, 'socio_economic_status': 2, 'survived': 1},
+    {'age': 35, 'gender': 0, 'socio_economic_status': 1, 'survived': 0},
+    # Add more data points if needed
+]
+
+# Extract features and labels
+features = [(d['age'], d['gender'], d['socio_economic_status']) for d in data]
+labels = [d['survived'] for d in data]
+
+# Sigmoid function for logistic regression
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
+
+# Initialize weights and bias
+weights = [0.1, 0.1, 0.1]
+bias = 0.1
+
+# Logistic regression prediction
+def predict(features):
+    weighted_sum = sum(w * f for w, f in zip(weights, features)) + bias
+    return sigmoid(weighted_sum)
+
+# Make predictions
+predictions = [predict(f) for f in features]
+
+# Threshold predictions to get binary outputs
+thresholded_predictions = [1 if p > 0.5 else 0 for p in predictions]
+
+# Calculate accuracy
+correct_predictions = sum(1 for p, l in zip(thresholded_predictions, labels) if p == l)
+accuracy = correct_predictions / len(labels)
+
+# Determine the impact of each factor
+# This will be a simple correlation calculation for demonstration purposes
+def calculate_impact(factor_index):
+    factor_values = [f[factor_index] for f in features]
+    correlation = sum((f - sum(factor_values) / len(factor_values)) * (l - sum(labels) / len(labels)) for f, l in zip(factor_values, labels))
+    return correlation
+
+impact_age = calculate_impact(0)
+impact_gender = calculate_impact(1)
+impact_socio_economic_status = calculate_impact(2)
+
+# Output the results
+print(f"Average Age: {sum(d['age'] for d in data) / len(data):.2f}")
+print(f"Average Gender: {sum(d['gender'] for d in data) / len(data):.2f}")
+print(f"Average Socio-Economic Status: {sum(d['socio_economic_status'] for d in data) / len(data):.2f}")
+print(f"Average Survival Rate: {sum(d['survived'] for d in data) / len(data):.2f}")
+print("\nPredictions (Probabilities of Survival):")
+for i, (f, p) in enumerate(zip(features, predictions)):
+    print(f"Person {i + 1}: Features={f}, Probability={p:.3f}, Predicted={'Survived' if thresholded_predictions[i] else 'Not Survived'}")
+print(f"\nModel Accuracy: {accuracy * 100:.2f}%")
+print("\nImpact of Factors on Survival (Correlation):")
+print(f"Impact of Age: {impact_age:.2f}")
+print(f"Impact of Gender: {impact_gender:.2f}")
+print(f"Impact of Socio-Economic Status: {impact_socio_economic_status:.2f}")
+
+
+Average Age: 30.40
+Average Gender: 0.40
+Average Socio-Economic Status: 1.20
+Average Survival Rate: 0.60
+
+Predictions (Probabilities of Survival):
+Person 1: Features=(25, 0, 2), Probability=0.943, Predicted=Survived
+Person 2: Features=(30, 1, 1), Probability=0.964, Predicted=Survived
+Person 3: Features=(22, 0, 0), Probability=0.909, Predicted=Survived
+Person 4: Features=(40, 1, 2), Probability=0.988, Predicted=Survived
+Person 5: Features=(35, 0, 1), Probability=0.976, Predicted=Survived
+
+Model Accuracy: 60.00%
+
+Impact of Factors on Survival (Correlation):
+Impact of Age: 3.80
+Impact of Gender: 0.80
+Impact of Socio-Economic Status: 1.40
